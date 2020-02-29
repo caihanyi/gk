@@ -1,12 +1,30 @@
 <template>
   <div id="app">
     <div id="nav">
+      <router-link to="/login">Login</router-link> |
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
     </div>
     <router-view/>
   </div>
 </template>
+
+// <script>
+
+//   export default {
+//     name: 'app',
+//     components: {
+//       // Login
+//     },
+//     methods:{
+//      mounted() {
+//        console.log('锁定屏幕');
+//             plus.screen.lockOrientation( 'landscape-primary');
+//      }
+//     }
+
+//   }
+// </script>
 
 <style lang="less">
 #app {
