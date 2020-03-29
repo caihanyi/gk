@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {Message} from 'element-ui';
+import store from '../store'
 
 
 
@@ -48,11 +49,14 @@ export const postKeyValueRequest = (url, params) => {
     });
 }
 
-export const postRequest = (url, params) => {
+export const postRequest = (url, params, session) => {
     return axios({
         method: 'post',
         url: `${base}${url}`,
-        data: params
+        data: params,
+        headers:{
+            "Authorization" : store.state.session
+        }
     })
 }
 export const putRequest = (url, params) => {
