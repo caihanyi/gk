@@ -17,36 +17,50 @@
                 <el-form-item prop="password">
                     <el-input size="normal" type="password" v-model="loginForm.password" auto-complete="off" placeholder="请输入密码" @keydown.enter.native="submitLogin"></el-input>
                 </el-form-item>
-                <el-checkbox style="float:left;" size="normal" class="loginRemember" v-model="checked">记住我</el-checkbox>
             </div>
+            
             <div v-show="!isLoginByPassword">
-                <el-form-item prop="phoneNum">
+                <!-- <el-form-item prop="phoneNum">
                     <el-input size="normal" type="text" v-model="loginForm.phoneNum" auto-complete="off" placeholder="请输入手机号码"></el-input>
                 </el-form-item>
                 <el-form-item prop="verificationCode">
                     <el-input size="normal" type="text" v-model="loginForm.verificationCode" auto-complete="off" placeholder="请输入验证码" @keydown.enter.native="submitLogin">
                         <el-button slot="append" :class="buttonHasGotCode"  @click="getVerificationCode" :disabled="hasGotCode">{{codeMsg}}</el-button>
                     </el-input>
-                </el-form-item>
-                <el-checkbox style="float:left;" size="normal" class="loginRemember" v-model="checked">记住我</el-checkbox>
+                </el-form-item> -->
+                <VerificationCode ref="verificationCode" 
+                @getPhone="getPhone"   @submit="submitLogin"
+                ></VerificationCode>
+
             </div>
+             <el-checkbox style="float:left;" size="normal" class="loginRemember" v-model="checked">记住我</el-checkbox>
+            <!-- <pdf v-for="i in numPages" ref="pdfs" :src="pdfSrc" :key="i" :page="i" >用户协议</pdf> -->
             
             <el-button size="normal" type="primary" style="width: 100%;" @click="submitLogin" >登录</el-button>
             <div class="otheroperation" >
                 <el-link style="float:left;"  target="_blank" v-show="isLoginByPassword" @click="changeLoginWay">短信验证码登录</el-link>
                 <el-link style="float:left;"  target="_blank" v-show="!isLoginByPassword" @click="changeLoginWay">账号密码登录</el-link>
-                <el-link style="float:right;" href="https://element.eleme.io" target="_blank">注册</el-link>
+                <el-link style="float:right;" @click="toSign" target="_blank">注册</el-link>
             </div>
         </el-form>
+        
     </div>
 </template>
 
 <script >
+    import VerificationCode from './VerificationCode.vue'
+   
 
     export default {
         name: "Login",
+
+        components: {  
+            VerificationCode
+        },
+
         data() {
             return {
+                numPages: [],
                 loading: false,
                 loginForm: {
                     phoneNum:'',
@@ -72,6 +86,12 @@
             }
         },
         computed: {
+            // phoneNum(){
+            //     return this.$verificationCode.phoneNum;
+            // },
+            // verificationCode(){
+            //     return this.$verificationCode.verificationCode;
+            // },
             rules(){
                 if(this.isLoginByPassword){
                     return this.passwordRules;
@@ -88,10 +108,22 @@
             loginSuccess(resp){
                 this.loading = false;
                 if (resp) {
+                  console.log("存储session");
+                  
                     this.$store.dispatch('saveSession', resp.session);//存储session
                     this.$router.replace('/');
                 }
             },
+
+            getPhone(phoneNum,code){
+              this.loginForm.phoneNum = phoneNum
+              this.loginForm.verificationCode = code
+            },
+
+            // getVerCode(code){
+            //   this.loginForm.verificationCode = code
+            // },
+ 
             submitLogin() {
                 this.$refs.loginForm.validate((valid) => {
                     if (valid) {
@@ -116,44 +148,52 @@
                 });
             },
 
+            toSign(){
+              this.$router.replace('/sign');
+            }
+          
+
            
 
-            getVerificationCode() {
-                if(this.checkPhoneNum(this.loginForm.phoneNum)){
-                    this.postRequest('/getVerificationCode', this.loginForm).then(resp => {
-                        if (resp) {
-                            this.changeCodeMsg ();
-                        }
-                    })
-                }else{
-                    this.$message.error("手机号码有误，请重填");  
-                }
-            },
 
-            checkPhoneNum (phoneNum) {
-                if(!(/^1[3456789]\d{9}$/.test(phoneNum))){ 
-                    return false; 
-                } else {
-                    return true; 
-                }
-            },
 
-            changeCodeMsg () {
-                this.time = 60;
-                this.hasGotCode = true;
-                this.buttonHasGotCode = 'verificationCodeButtonDisabled';
-                this.timer = setInterval(() =>{
-                    this.codeMsg = '('+this.time+')'+'已获取验证码';
-                    if(this.time === 0){
-                        clearInterval(this.timer);
-                        this.buttonHasGotCode = 'verificationCodeButton';
-                        this.codeMsg = '重新获取验证码';
-                        this.hasGotCode = false;
-                    }
-                    this.time --;
-                }, 1000);
+
+            // getVerificationCode() {
+            //     if(this.checkPhoneNum(this.loginForm.phoneNum)){
+            //         this.postRequest('/getVerificationCode', this.loginForm).then(resp => {
+            //             if (resp) {
+            //                 this.changeCodeMsg ();
+            //             }
+            //         })
+            //     }else{
+            //         this.$message.error("手机号码有误，请重填");  
+            //     }
+            // },
+
+            // checkPhoneNum (phoneNum) {
+            //     if(!(/^1[3456789]\d{9}$/.test(phoneNum))){ 
+            //         return false; 
+            //     } else {
+            //         return true; 
+            //     }
+            // },
+
+            // changeCodeMsg () {
+            //     this.time = 60;
+            //     this.hasGotCode = true;
+            //     this.buttonHasGotCode = 'verificationCodeButtonDisabled';
+            //     this.timer = setInterval(() =>{
+            //         this.codeMsg = '('+this.time+')'+'已获取验证码';
+            //         if(this.time === 0){
+            //             clearInterval(this.timer);
+            //             this.buttonHasGotCode = 'verificationCodeButton';
+            //             this.codeMsg = '重新获取验证码';
+            //             this.hasGotCode = false;
+            //         }
+            //         this.time --;
+            //     }, 1000);
                
-            }
+            // }
         }
     }
 
@@ -188,7 +228,7 @@
         margin-bottom: 20px;
     }
 
-    .verificationCodeButton {
+    /* .verificationCodeButton {
         width: 140px;
         color: #FFF!important;
         background-color: #409EFF!important;
@@ -196,5 +236,5 @@
 
     .verificationCodeButtonDisabled{
         width: 140px;
-    }
+    } */
 </style>

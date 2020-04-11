@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import Sign from '../views/Sign.vue'
 import Login from '../components/Login.vue'
 import Map from '../components/Map.vue'
 
@@ -20,10 +21,12 @@ const routes = [
   {
     path: '/Map',
     name: 'Map',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
     component: Map
+  },
+  {
+    path: '/sign',
+    name: 'Sign',
+    component: Sign
   },
   {
     path: '/login',
